@@ -111,3 +111,8 @@ class Interface:
         """Get the status of the wifi interface."""
 
         return self._wifi_ctrl.status(self._raw_obj)
+
+    def current_connection(self):
+        """Get the current connection of the wifi interface."""
+
+        return self._wifi_ctrl.current_connection(self._raw_obj)

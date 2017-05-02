@@ -241,6 +241,38 @@ class WLAN_PROFILE_INFO_LIST(Structure):
         ("ProfileInfo", WLAN_PROFILE_INFO * 1)
     ]
 
+# add by wq
+class WLAN_ASSOCIATION_ATTRIBUTES(Structure):
+    
+    _fields_ = [
+        ("dot11Ssid", DOT11_SSID),
+        ("dot11BssType", c_uint),
+        ("dot11Bssid", DOT11_MAC_ADDRESS),
+        ("dot11PhyType", c_uint),
+        ("uDot11PhyIndex", c_ulong),
+        ("wlanSignalQuality", c_ulong),
+        ("ulRxRate", c_ulong),
+        ("ulTxRate", c_ulong)
+    ]
+
+class WLAN_SECURITY_ATTRIBUTES(Structure):
+    
+    _fields_ = [
+        ("bSecurityEnabled", c_bool),
+        ("bOneXEnabled", c_bool),
+        ("dot11AuthAlgorithm", c_uint),
+        ("dot11CipherAlgorithm", c_uint)
+    ]
+
+class WLAN_CONNECTION_ATTRIBUTES(Structure):
+    
+    _fields_ = [
+        ("isState", c_uint),
+        ("wlanConnectionMode", c_uint),
+        ("strProfileName", c_wchar * 256),
+        ("wlanAssociationAttributes", WLAN_ASSOCIATION_ATTRIBUTES * 1),
+        ("wlanSecurityAttributes", WLAN_SECURITY_ATTRIBUTES * 1)
+    ]
 
 class WifiUtil():
     """WifiUtil implements the wifi functions in Windows."""
@@ -470,6 +502,18 @@ class WifiUtil():
 
         return status_dict[data.contents.value]
 
+    def current_connection(self, obj):
+        """Get the wifi interface current connection."""
+
+        data_size = DWORD()
+        data = pointer(WLAN_CONNECTION_ATTRIBUTES())
+        opcode_value_type = DWORD()
+        self._wlan_query_interface_current_connection(self._handle, obj['guid'], 7, # wlan_intf_opcode_current_connection
+                                   byref(data_size), byref(data),
+                                   byref(opcode_value_type))
+
+        return data.contents
+
     def interfaces(self):
         """Get the wifi interface lists."""
 
@@ -592,6 +636,14 @@ class WifiUtil():
         func = native_wifi.WlanQueryInterface
         func.argtypes = [HANDLE, POINTER(GUID), DWORD, c_void_p, POINTER(
             DWORD), POINTER(POINTER(DWORD)), POINTER(DWORD)]
+        func.restypes = [DWORD]
+        return func(handle, iface_guid, opcode, None, data_size, data, opcode_value_type)
+
+    def _wlan_query_interface_current_connection(self, handle, iface_guid, opcode, data_size, data, opcode_value_type):
+    
+        func = native_wifi.WlanQueryInterface
+        func.argtypes = [HANDLE, POINTER(GUID), DWORD, c_void_p, POINTER(
+            DWORD), POINTER(POINTER(WLAN_CONNECTION_ATTRIBUTES)), POINTER(DWORD)]
         func.restypes = [DWORD]
         return func(handle, iface_guid, opcode, None, data_size, data, opcode_value_type)
 
