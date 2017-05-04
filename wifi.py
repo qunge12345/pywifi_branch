@@ -32,14 +32,15 @@ class PyWiFi:
     def __init__(self):
         
         self._logger = logging.getLogger('pywifi')
+        self.wifi_ctrl = None
 
     def interfaces(self):
         """Collect the available wlan interfaces."""
 
         self._ifaces = []
-        wifi_ctrl = wifiutil.WifiUtil()
+        self.wifi_ctrl = wifiutil.WifiUtil()
 
-        for interface in wifi_ctrl.interfaces():
+        for interface in self.wifi_ctrl.interfaces():
             iface = Interface(interface)
             self._ifaces.append(iface)
             self._logger.debug("Get interface: %s", iface.name())
@@ -48,3 +49,12 @@ class PyWiFi:
             self._logger.error("Can't get wifi interface")
 
         return self._ifaces
+
+    
+    def closeInterfaces(self):
+        '''
+        destroy the interfaces handle
+        '''
+
+        self.wifi_ctrl.closeInterfaces()
+    

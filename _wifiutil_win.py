@@ -537,6 +537,13 @@ class WifiUtil():
 
         return ifaces
 
+    def closeInterfaces(self):
+        '''
+        destroy the interfaces handle. by wq
+        '''
+
+        return self._wlan_close_handle(self._handle)
+
     def _wlan_open_handle(self, client_version, _nego_version, handle):
 
         func = native_wifi.WlanOpenHandle
