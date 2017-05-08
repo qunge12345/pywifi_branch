@@ -296,7 +296,7 @@ class WifiUtil():
         networks = cast(avail_network_list.contents.Network,
                      POINTER(WLAN_AVAILABLE_NETWORK))
 
-        self._logger.debug("Scan found %d networks.",
+        self._logger.info("Scan found %d networks.",
             avail_network_list.contents.dwNumberOfItems)
 
         network_list = []
@@ -346,12 +346,13 @@ class WifiUtil():
         connect_params = WLAN_CONNECTION_PARAMETERS()
         connect_params.wlanConnectionMode = 0  # Profile
         connect_params.dot11BssType = 1  # infra
+        # connect_params.dwFlags = 1 # WLAN_CONNECTION_HIDDEN_NETWORK
         profile_name = create_unicode_buffer(params.ssid)
 
         connect_params.strProfile = profile_name.value
         ret = self._wlan_connect(
-            self._handle, obj['guid'], byref(connect_params))
-        self._logger.debug('connect result: %d', ret)
+            self._handle, byref(obj['guid']), byref(connect_params))
+        self._logger.info('connect %s result: %d' % (connect_params.strProfile, ret))
 
     def disconnect(self, obj):
         """Disconnect to the specified AP."""
@@ -418,7 +419,7 @@ class WifiUtil():
         status = self._wlan_set_profile(self._handle, obj['guid'], xml,
                                         True, byref(reason_code))
         if status != ERROR_SUCCESS:
-            self._logger.debug("Status %d: Add profile failed", status)
+            self._logger.info("Status %d: Add profile failed", status)
 
         buf_size = DWORD(64)
         buf = create_unicode_buffer(64)
@@ -606,7 +607,7 @@ class WifiUtil():
         func.argtypes = [HANDLE, POINTER(
             GUID), DWORD, c_wchar_p, c_wchar_p, c_bool, c_void_p, POINTER(DWORD)]
         func.restypes = [DWORD]
-        return func(handle, iface_guid, 2, xml, None, overwrite, None, reason_code)
+        return func(handle, iface_guid, 0, xml, None, overwrite, None, reason_code)
 
     def _wlan_reason_code_to_str(self, reason_code, buf_size, buf):
 
