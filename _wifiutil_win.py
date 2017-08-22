@@ -388,7 +388,7 @@ class WifiUtil():
                 </SSID>
             </SSIDConfig>
             <connectionType>ESS</connectionType>
-            <connectionMode>manual</connectionMode>
+            <connectionMode>auto</connectionMode>
             <MSM>
                 <security>
                     <authEncryption>
