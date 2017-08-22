@@ -50,17 +50,17 @@ status_dict = [
 ]
 
 auth_value_to_str_dict = {
-    AUTH_ALG_OPEN: 'OPEN',
-    AUTH_ALG_SHARED: 'SHARED'
+    AUTH_ALG_OPEN: 'open',
+    AUTH_ALG_SHARED: 'shared'
 }
 
 auth_str_to_value_dict = {
-    'OPEN': AUTH_ALG_OPEN,
-    'SHARED': AUTH_ALG_SHARED
+    'open': AUTH_ALG_OPEN,
+    'shared': AUTH_ALG_SHARED
 }
 
 akm_str_to_value_dict = {
-    'NONE': AKM_TYPE_NONE,
+    'none': AKM_TYPE_NONE,
     'WPA': AKM_TYPE_WPA,
     'WPAPSK': AKM_TYPE_WPAPSK,
     'WPA2': AKM_TYPE_WPA2,
@@ -69,7 +69,7 @@ akm_str_to_value_dict = {
 }
 
 akm_value_to_str_dict = {
-    AKM_TYPE_NONE: 'NONE',
+    AKM_TYPE_NONE: 'none',
     AKM_TYPE_WPA: 'WPA',
     AKM_TYPE_WPAPSK: 'WPAPSK',
     AKM_TYPE_WPA2: 'WPA2',
@@ -78,7 +78,7 @@ akm_value_to_str_dict = {
 }
 
 cipher_str_to_value_dict = {
-    'NONE': CIPHER_TYPE_NONE,
+    'none': CIPHER_TYPE_NONE,
     'WEP': CIPHER_TYPE_WEP,
     'TKIP': CIPHER_TYPE_TKIP,
     'AES': CIPHER_TYPE_CCMP,
@@ -86,7 +86,7 @@ cipher_str_to_value_dict = {
 }
 
 cipher_value_to_str_dict = {
-    CIPHER_TYPE_NONE: 'NONE',
+    CIPHER_TYPE_NONE: 'none',
     CIPHER_TYPE_WEP: 'WEP',
     CIPHER_TYPE_TKIP: 'TKIP',
     CIPHER_TYPE_CCMP: 'AES',
@@ -389,6 +389,7 @@ class WifiUtil():
             </SSIDConfig>
             <connectionType>ESS</connectionType>
             <connectionMode>auto</connectionMode>
+            <autoSwitch>false</autoSwitch>
             <MSM>
                 <security>
                     <authEncryption>
@@ -398,17 +399,17 @@ class WifiUtil():
                     </authEncryption>
         """
 
-        if params.akm != AKM_TYPE_NONE:
+        if params.akm[-1] != AKM_TYPE_NONE:
             xml += """<sharedKey>
                         <keyType>passPhrase</keyType>
                         <protected>{protected}</protected>
                         <keyMaterial>{key}</keyMaterial>
                     </sharedKey>
-                </security>
-            </MSM>
-            """
-
-        xml += """<MacRandomization xmlns="http://www.microsoft.com/networking/WLAN/profile/v3">
+                    """
+                
+        xml += """</security>
+                    </MSM>
+                    <MacRandomization xmlns="http://www.microsoft.com/networking/WLAN/profile/v3">
                 <enableRandomization>false</enableRandomization>
             </MacRandomization>
         </WLANProfile>
