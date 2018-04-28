@@ -274,6 +274,30 @@ class WLAN_CONNECTION_ATTRIBUTES(Structure):
         ("wlanSecurityAttributes", WLAN_SECURITY_ATTRIBUTES * 1)
     ]
 
+class WLAN_HOSTED_NETWORK_PEER_STATE(Structure):
+    _fields_ = [
+        ("PeerMacAddress", DOT11_MAC_ADDRESS),
+        ("PeerAuthState", c_uint)
+    ]
+
+class WLAN_HOSTED_NETWORK_STATUS(Structure):
+    
+     _fields_ = [
+        ("HostedNetworkState", c_uint),
+        ("IPDeviceID", GUID),
+        ("wlanHostedNetworkBSSID", DOT11_MAC_ADDRESS),
+        ("dot11PhyTypes", c_uint),
+        ("ulChannelFrequency", c_ulong),
+        ("dwNumberOfPeers", DWORD),
+        ("PeerList", WLAN_HOSTED_NETWORK_PEER_STATE * 1)
+    ]
+
+class WLAN_HOSTED_NETWORK_CONNECTION_SETTINGS(Structure):
+    _fields_ = [
+        ("hostedNetworkSSID", DOT11_SSID),
+        ("dwMaxNumberOfPeers", DWORD)
+    ]
+
 class WifiUtil():
     """WifiUtil implements the wifi functions in Windows."""
 
@@ -546,6 +570,24 @@ class WifiUtil():
 
         return self._wlan_close_handle(self._handle)
 
+    def hosted_network_status(self):
+        """Get the current status of the hosted network."""
+
+        data = pointer(WLAN_HOSTED_NETWORK_STATUS())
+        ret = self._wlan_hosted_network_query_status(self._handle, byref(data))
+        print("calc winapi WlanHostedNetworkQueryStatus: the return value is " + str(ret))
+        return data.contents
+
+    def hosted_network_property(self):
+        """Get the current property of the hosted network."""
+
+        data_size = DWORD()
+        data = pointer(WLAN_HOSTED_NETWORK_CONNECTION_SETTINGS())
+        opcode_value_type = DWORD()
+        ret = self._wlan_hosted_network_query_property(self._handle, byref(data_size), byref(data), byref(opcode_value_type))
+        print("calc winapi WlanHostedNetworkQueryProperty: the return value is " + str(ret))
+        return data.contents
+
     def _wlan_open_handle(self, client_version, _nego_version, handle):
 
         func = native_wifi.WlanOpenHandle
@@ -649,12 +691,26 @@ class WifiUtil():
         return func(handle, iface_guid, opcode, None, data_size, data, opcode_value_type)
 
     def _wlan_query_interface_current_connection(self, handle, iface_guid, opcode, data_size, data, opcode_value_type):
-    
+        
         func = native_wifi.WlanQueryInterface
         func.argtypes = [HANDLE, POINTER(GUID), DWORD, c_void_p, POINTER(
             DWORD), POINTER(POINTER(WLAN_CONNECTION_ATTRIBUTES)), POINTER(DWORD)]
         func.restypes = [DWORD]
         return func(handle, iface_guid, opcode, None, data_size, data, opcode_value_type)
+
+    def _wlan_hosted_network_query_status(self, handle, data):
+    
+        func = native_wifi.WlanHostedNetworkQueryStatus
+        func.argtypes = [HANDLE, POINTER(POINTER(WLAN_HOSTED_NETWORK_STATUS)), c_void_p]
+        func.restypes = [DWORD]
+        return func(handle, data, None)
+
+    def _wlan_hosted_network_query_property(self, handle, data_size, data, opcode_value_type):
+        
+        func = native_wifi.WlanHostedNetworkQueryProperty
+        func.argtypes = [HANDLE, DWORD, POINTER(DWORD), POINTER(POINTER(WLAN_HOSTED_NETWORK_CONNECTION_SETTINGS)), POINTER(DWORD), c_void_p]
+        func.restypes = [DWORD]
+        return func(handle, 0, data_size, data, opcode_value_type, None)
 
     def _wlan_disconnect(self, handle, iface_guid):
 

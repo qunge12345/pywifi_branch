@@ -116,3 +116,13 @@ class Interface:
         """Get the current connection of the wifi interface."""
 
         return self._wifi_ctrl.current_connection(self._raw_obj)
+
+    def hosted_network_status(self):
+        """Get the current status of the hosted network."""
+
+        return self._wifi_ctrl.hosted_network_status()
+
+    def hosted_network_property(self):
+        """Get the current property of the hosted network."""
+
+        return self._wifi_ctrl.hosted_network_property()
